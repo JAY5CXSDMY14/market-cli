@@ -8,10 +8,17 @@
     "check": "node src/cli.js check",
     "watch": "node src/cli.js watch"
   },
-  "keywords": ["stock", "crypto", "gold", "cli", "market"],
+  "keywords": [
+    "stock",
+    "crypto",
+    "gold",
+    "cli",
+    "market"
+  ],
   "author": "LuXZ02",
   "license": "MIT",
   "dependencies": {
-    "axios": "^1.6.0"
+    "axios": "^1.6.0",
+    "iconv-lite": "^0.7.2"
   }
 }

@@ -5,8 +5,8 @@
  * 支持 A股、港股、黄金、加密货币
  * 
  * API来源:
- * - A股/港股: 新浪财经 (免费)
- * - 黄金: GoldAPI.io 或新浪贵金属
+ * - A股/港股: 新浪财经 (免费，GBK编码)
+ * - 黄金: GoldAPI.io 或模拟数据
  * - 加密货币: CoinGecko API (免费)
  */
 
@@ -71,28 +71,32 @@ function formatPrice(price, change) {
     return `${COLORS.reset}${price} ${color}${sign}${change.toFixed(2)}%${COLORS.reset}`;
 }
 
-// 获取A股/港股价格 (新浪API)
+// 获取A股/港股价格 (新浪API - GBK编码)
 async function fetchChinaStock(symbol) {
     try {
         const url = `https://hq.sinajs.cn/list=${symbol}`;
         const response = await axios.get(url, {
             headers: { 'Referer': 'http://finance.sina.com.cn' },
+            responseType: 'arraybuffer',  // 获取原始数据
             timeout: 10000
         });
         
-        const data = response.data;
-        if (data.includes('null') || data.length < 32) {
+        // 新浪API返回GBK编码，需要转换
+        const iconv = require('iconv-lite');
+        const dataStr = iconv.decode(response.data, 'gbk');
+        
+        if (dataStr.includes('null') || dataStr.length < 32) {
             return null;
         }
         
         // 解析: sh600519="贵州茅台,1830.00,1835.00,1840.00,..."
         // parts[0]: 名称, parts[1]: 开盘, parts[2]: 昨收, parts[3]: 当前价
-        const match = data.match(/"([^"]+)"/);
+        const match = dataStr.match(/"([^"]+)"/);
         if (match) {
             const parts = match[1].split(',');
             if (parts.length >= 4) {
-                const open = parseFloat(parts[1]);    // 开盘价
-                const prevClose = parseFloat(parts[2]); // 昨收
+                const stockName = parts[0];  // 股票名称
+                const prevClose = parseFloat(parts[2]);  // 昨收
                 const current = parseFloat(parts[3]);   // 当前价
                 
                 // 计算涨跌幅
@@ -102,6 +106,7 @@ async function fetchChinaStock(symbol) {
                 }
                 
                 return {
+                    name: stockName,           // 添加股票名称
                     price: current,
                     change: change
                 };
@@ -109,11 +114,8 @@ async function fetchChinaStock(symbol) {
         }
         return null;
     } catch (error) {
-        // 如果API失败，返回模拟数据用于测试
-        return {
-            price: 100 + Math.random() * 100,
-            change: (Math.random() - 0.5) * 5
-        };
+        console.error(`❌ 获取 ${symbol} 失败:`, error.message);
+        return null;
     }
 }
 
@@ -241,16 +243,24 @@ async function main() {
     console.log(`${COLORS.blue}🇨🇳 A股${COLORS.reset}`);
     for (const stock of watchlist.stocks.symbols) {
         const data = await fetchChinaStock(stock.symbol);
-        const status = data ? formatPrice(data.price, data.change) : '❌';
-        console.log(`   ${stock.name}: ${status}`);
+        if (data) {
+            const status = formatPrice(data.price, data.change);
+            console.log(`   ${data.name}: ${status}`);
+        } else {
+            console.log(`   ${stock.name}: ❌`);
+        }
     }
     
     console.log('');
     console.log(`${COLORS.blue}🇭🇰 港股${COLORS.reset}`);
     for (const stock of watchlist.hkstocks.symbols) {
         const data = await fetchChinaStock(stock.symbol);
-        const status = data ? formatPrice(data.price, data.change) : '❌';
-        console.log(`   ${stock.name}: ${status}`);
+        if (data) {
+            const status = formatPrice(data.price, data.change);
+            console.log(`   ${data.name}: ${status}`);
+        } else {
+            console.log(`   ${stock.name}: ❌`);
+        }
     }
     
     console.log('');
