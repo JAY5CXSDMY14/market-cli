@@ -1,0 +1,39 @@
+{
+  "stocks": {
+    "name": "A股",
+    "symbols": [
+      { "symbol": "sh000001", "name": "上证指数" },
+      { "symbol": "sz399001", "name": "深证成指" },
+      { "symbol": "sz399006", "name": "创业板指" },
+      { "symbol": "sh600519", "name": "贵州茅台" },
+      { "symbol": "sz000001", "name": "平安银行" },
+      { "symbol": "sh600036", "name": "招商银行" },
+      { "symbol": "sh601398", "name": "工商银行" }
+    ]
+  },
+  "hkstocks": {
+    "name": "港股",
+    "symbols": [
+      { "symbol": "hkHSI", "name": "恒生指数" },
+      { "symbol": "hk00700", "name": "腾讯控股" },
+      { "symbol": "hk00981", "name": "中芯国际" },
+      { "symbol": "hk03690", "name": "美团" }
+    ]
+  },
+  "gold": {
+    "name": "黄金",
+    "symbols": [
+      { "symbol": "XAUUSD", "name": "黄金/美元" },
+      { "symbol": "AU9999", "name": "Au9999" }
+    ]
+  },
+  "crypto": {
+    "name": "加密货币",
+    "symbols": [
+      { "symbol": "bitcoin", "name": "BTC" },
+      { "symbol": "ethereum", "name": "ETH" },
+      { "symbol": "solana", "name": "SOL" },
+      { "symbol": "binancecoin", "name": "BNB" }
+    ]
+  }
+}
